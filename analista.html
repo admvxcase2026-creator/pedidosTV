@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VX Case · Solicitação de Movimento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#f4f4f5;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:32px 16px}
+.container{width:100%;max-width:720px}
+.screen{background:#fafafa;border-radius:14px;overflow:hidden;border:0.5px solid #e4e4e7;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.topbar{background:#fff;border-bottom:0.5px solid #e4e4e7;padding:18px 24px;display:flex;align-items:center;justify-content:space-between}
+.brand{font-size:15px;font-weight:700;color:#09090b;letter-spacing:-0.3px}
+.clk{font-size:13px;font-weight:500;color:#a1a1aa;font-variant-numeric:tabular-nums}
+.body{padding:28px 32px;display:flex;flex-direction:column;gap:24px}
+.section-title{font-size:16px;font-weight:700;color:#09090b;letter-spacing:-0.2px}
+.section-sub{font-size:12px;font-weight:400;color:#71717a;margin-top:3px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field.full{grid-column:1/-1}
+.field label{font-size:11px;font-weight:600;color:#71717a;letter-spacing:0.06em}
+.field input,.field select,.field textarea{background:#fff;border:0.5px solid #e4e4e7;border-radius:8px;color:#09090b;font-size:14px;font-weight:500;padding:10px 13px;outline:none;transition:border-color 0.15s;font-family:'DM Sans',sans-serif;resize:none}
+.field input::placeholder,.field textarea::placeholder{color:#d4d4d8;font-weight:400}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#09090b}
+.field select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.field input.err,.field select.err{border-color:#dc2626}
+.form-footer{display:flex;align-items:center;justify-content:space-between}
+.enviados-blk{display:flex;flex-direction:column}
+.enviados-n{font-size:24px;font-weight:700;color:#2563eb;font-variant-numeric:tabular-nums;line-height:1}
+.enviados-l{font-size:10px;font-weight:600;color:#a1a1aa;letter-spacing:0.08em;margin-top:2px}
+.btn-solicitar{background:#09090b;color:#fff;border:none;border-radius:8px;padding:11px 28px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:8px;letter-spacing:-0.1px;transition:background 0.15s}
+.btn-solicitar:hover{background:#27272a}
+.btn-solicitar:active{transform:scale(0.98)}
+.divider{height:0.5px;background:#e4e4e7}
+.hist-section{padding:16px 32px 24px}
+.hist-label{font-size:10px;font-weight:700;letter-spacing:0.1em;color:#a1a1aa;margin-bottom:10px}
+.hist-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto}
+.hist-item{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:12px;font-size:12px;padding:9px 13px;background:#fff;border-radius:8px;border:0.5px solid #e4e4e7}
+.hist-mov{font-weight:700;color:#09090b;font-variant-numeric:tabular-nums;white-space:nowrap}
+.hist-meta{color:#71717a;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist-hora{color:#a1a1aa;font-size:11px;white-space:nowrap}
+.hist-badge{font-size:10px;padding:2px 8px;border-radius:4px;background:#f0fdf4;color:#16a34a;font-weight:600;border:0.5px solid #bbf7d0;white-space:nowrap}
+.empty-hist{font-size:12px;color:#d4d4d8;text-align:center;padding:16px 0}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#09090b;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;opacity:0;transition:opacity 0.25s;pointer-events:none;white-space:nowrap;z-index:99}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="screen">
+    <div class="topbar">
+      <div class="brand">VX Case · Solicitação de movimento</div>
+      <div class="clk" id="clk">--:--:--</div>
+    </div>
+    <div class="body">
+      <div>
+        <div class="section-title">Nova solicitação</div>
+        <div class="section-sub">Preencha os campos e envie ao estoque</div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>NÚMERO DO MOVIMENTO</label>
+          <input type="text" id="f-mov" placeholder="Ex: 10325418" maxlength="20" oninput="this.value=this.value.replace(/\D/g,'');this.classList.remove('err')">
+        </div>
+        <div class="field">
+          <label>ANALISTA</label>
+          <select id="f-analista" onchange="this.classList.remove('err')">
+            <option value="">Selecione...</option>
+            <option>Suiane Lopes</option>
+            <option>Rodrigo Pereira</option>
+            <option>Amanda Menezes</option>
+            <option>Raquel França</option>
+            <option>Felipe Santana</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label>OBSERVAÇÃO <span style="color:#d4d4d8;font-weight:400">(opcional)</span></label>
+          <textarea id="f-obs" rows="3" placeholder="Ex: sair junto ao semanal de Belém, urgente..."></textarea>
+        </div>
+      </div>
+      <div class="form-footer">
+        <div class="enviados-blk">
+          <div class="enviados-n" id="cnt-hoje">0</div>
+          <div class="enviados-l">ENVIADOS HOJE</div>
+        </div>
+        <button class="btn-solicitar" onclick="solicitar()">
+          <i class="ti ti-send" style="font-size:15px"></i> Solicitar ao estoque
+        </button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="hist-section">
+      <div class="hist-label">HISTÓRICO DO DIA</div>
+      <div class="hist-list" id="hist-list">
+        <div class="empty-hist">Nenhuma solicitação enviada ainda</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPA_URL = 'https://fevhyllvfhvzzfhwyjuk.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZldmh5bGx2Zmh2enpmaHd5anVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NzEyMTcsImV4cCI6MjA5NDQ0NzIxN30.GJRgEKW1bVWX1957_bKCTO6aVmR_rXWRCmo9-ZJDPiE';
+
+let hoje = 0;
+const hist = [];
+
+setInterval(() => {
+  document.getElementById('clk').textContent = new Date().toLocaleTimeString('pt-BR');
+}, 1000);
+document.getElementById('clk').textContent = new Date().toLocaleTimeString('pt-BR');
+
+async function solicitar() {
+  const mov = document.getElementById('f-mov').value.trim();
+  const analista = document.getElementById('f-analista').value;
+  const obs = document.getElementById('f-obs').value.trim();
+  let ok = true;
+  if (!mov) { document.getElementById('f-mov').classList.add('err'); ok = false; }
+  if (!analista) { document.getElementById('f-analista').classList.add('err'); ok = false; }
+  if (!ok) { toast('Preencha os campos obrigatórios'); return; }
+
+  const btn = document.querySelector('.btn-solicitar');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader" style="font-size:15px"></i> Enviando...';
+
+  try {
+    const res = await fetch(`${SUPA_URL}/rest/v1/kds_pedidos`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPA_KEY,
+        'Authorization': `Bearer ${SUPA_KEY}`,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ movimento: mov, analista, observacao: obs || null, status: 'waiting' })
+    });
+
+    if (!res.ok) throw new Error('Erro ao enviar');
+
+    hoje++;
+    document.getElementById('cnt-hoje').textContent = hoje;
+    hist.unshift({ mov, analista, obs, hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) });
+    renderHist();
+    document.getElementById('f-mov').value = '';
+    document.getElementById('f-analista').value = '';
+    document.getElementById('f-obs').value = '';
+    toast('Solicitação enviada ao estoque!');
+    document.getElementById('f-mov').focus();
+  } catch(e) {
+    toast('Erro ao enviar. Tente novamente.');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-send" style="font-size:15px"></i> Solicitar ao estoque';
+  }
+}
+
+function renderHist() {
+  const el = document.getElementById('hist-list');
+  if (!hist.length) { el.innerHTML = '<div class="empty-hist">Nenhuma solicitação enviada ainda</div>'; return; }
+  el.innerHTML = hist.map(h => `
+    <div class="hist-item">
+      <span class="hist-mov">MOV ${h.mov}</span>
+      <span class="hist-meta">${h.analista}${h.obs ? ' · ' + h.obs.slice(0,40) + (h.obs.length > 40 ? '…' : '') : ''}</span>
+      <span class="hist-hora">${h.hora}</span>
+      <span class="hist-badge">Enviado</span>
+    </div>`).join('');
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+document.getElementById('f-mov').addEventListener('keydown', e => {
+  if (e.key === 'Enter') solicitar();
+});
+</script>
+</body>
+</html>

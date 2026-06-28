@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VX Case · Gestão do Estoque</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#f4f4f5;min-height:100vh;padding:32px 24px}
+.screen{background:#fafafa;border-radius:14px;overflow:hidden;border:0.5px solid #e4e4e7;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.topbar{background:#fff;border-bottom:0.5px solid #e4e4e7;padding:18px 24px;display:flex;align-items:center;justify-content:space-between}
+.brand{font-size:15px;font-weight:700;color:#09090b;letter-spacing:-0.3px}
+.clk{font-size:13px;font-weight:500;color:#a1a1aa;font-variant-numeric:tabular-nums}
+.body{padding:24px 28px;display:flex;flex-direction:column;gap:24px}
+.sec-label{font-size:10px;font-weight:700;letter-spacing:0.1em;color:#a1a1aa;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.sec-label::after{content:'';flex:1;height:0.5px;background:#e4e4e7;display:block}
+.cards-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.card-stat{background:#fff;border:0.5px solid #e4e4e7;border-radius:10px;padding:16px 18px}
+.card-stat.clickable{cursor:pointer;transition:border-color 0.15s,box-shadow 0.15s}
+.card-stat.clickable:hover{border-color:#09090b;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+.card-stat-label{font-size:10px;font-weight:600;color:#a1a1aa;letter-spacing:0.08em;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.card-stat-label .hint{font-size:9px;color:#d4d4d8;font-weight:500;letter-spacing:0}
+.card-stat-n{font-size:28px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.card-stat-n.blue{color:#2563eb}
+.card-stat-n.green{color:#16a34a}
+.card-stat-n.red{color:#dc2626}
+.card-stat-sub{font-size:11px;font-weight:500;color:#a1a1aa;margin-top:4px}
+.table-section{background:#fff;border:0.5px solid #e4e4e7;border-radius:10px;overflow:hidden}
+.table-header{padding:14px 18px;border-bottom:0.5px solid #e4e4e7;display:flex;align-items:center;justify-content:space-between}
+.table-title{font-size:13px;font-weight:700;color:#09090b}
+.table-sub{font-size:11px;font-weight:500;color:#a1a1aa}
+table{width:100%;border-collapse:collapse}
+thead tr{background:#fafafa;border-bottom:0.5px solid #e4e4e7}
+thead th{font-size:10px;font-weight:700;color:#a1a1aa;letter-spacing:0.08em;padding:10px 18px;text-align:left}
+tbody tr{border-bottom:0.5px solid #f4f4f5;transition:background 0.1s;cursor:pointer}
+tbody tr:hover{background:#f9fafb}
+tbody tr:last-child{border-bottom:none}
+tbody td{font-size:13px;font-weight:500;color:#09090b;padding:12px 18px}
+tbody td.sub{color:#71717a;font-size:12px}
+.badge{display:inline-flex;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px}
+.badge.green{background:#f0fdf4;color:#16a34a;border:0.5px solid #bbf7d0}
+.badge.amber{background:#fffbeb;color:#d97706;border:0.5px solid #fde68a}
+.trend-up{color:#16a34a;font-size:11px;font-weight:600}
+.trend-dn{color:#dc2626;font-size:11px;font-weight:600}
+.trend-ok{color:#a1a1aa;font-size:11px;font-weight:600}
+.row-hint{font-size:10px;color:#d4d4d8;font-weight:500}
+.empty-row td{text-align:center;color:#d4d4d8;padding:32px!important;font-size:13px}
+.loading{text-align:center;color:#a1a1aa;padding:32px;font-size:13px}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:99;animation:fadeIn 0.15s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:#fff;border-radius:12px;border:0.5px solid #e4e4e7;width:90%;max-width:600px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden;animation:popIn 0.18s ease-out}
+@keyframes popIn{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}
+.modal-header{padding:16px 20px;border-bottom:0.5px solid #e4e4e7;display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:14px;font-weight:700;color:#09090b}
+.modal-sub{font-size:11px;color:#a1a1aa;margin-top:2px}
+.modal-close{background:none;border:none;cursor:pointer;color:#a1a1aa;font-size:18px;padding:2px}
+.modal-close:hover{color:#09090b}
+.modal-body{overflow-y:auto;flex:1}
+.modal-table{width:100%;border-collapse:collapse}
+.modal-table thead tr{background:#fafafa;border-bottom:0.5px solid #e4e4e7}
+.modal-table thead th{font-size:10px;font-weight:700;color:#a1a1aa;letter-spacing:0.08em;padding:9px 16px;text-align:left}
+.modal-table tbody tr{border-bottom:0.5px solid #f4f4f5}
+.modal-table tbody tr:last-child{border-bottom:none}
+.modal-table tbody td{font-size:12px;font-weight:500;color:#09090b;padding:10px 16px}
+.modal-table tbody td.muted{color:#71717a}
+.highlight-green{background:#f0fdf4}
+.highlight-red{background:#fff1f2}
+.tag-fast{font-size:10px;font-weight:600;color:#16a34a;background:#f0fdf4;border:0.5px solid #bbf7d0;border-radius:4px;padding:2px 6px;margin-left:6px}
+.tag-slow{font-size:10px;font-weight:600;color:#dc2626;background:#fff1f2;border:0.5px solid #fecaca;border-radius:4px;padding:2px 6px;margin-left:6px}
+.card-detalhe{padding:20px 16px}
+.card-detalhe-box{border-radius:8px;padding:16px 18px}
+.card-detalhe-box.fast{background:#f0fdf4}
+.card-detalhe-box.slow{background:#fff1f2}
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="topbar">
+    <div class="brand">VX Case · Gestão do Estoque</div>
+    <div class="clk" id="clk">--:--:--</div>
+  </div>
+  <div class="body">
+    <div>
+      <div class="sec-label" id="hoje-label">HOJE</div>
+      <div class="cards-row">
+        <div class="card-stat">
+          <div class="card-stat-label">TOTAL ATENDIDOS</div>
+          <div class="card-stat-n green" id="card-total">—</div>
+          <div class="card-stat-sub">pedidos concluídos</div>
+        </div>
+        <div class="card-stat">
+          <div class="card-stat-label">TEMPO MÉDIO</div>
+          <div class="card-stat-n blue" id="card-medio">—</div>
+          <div class="card-stat-sub">min por pedido</div>
+        </div>
+        <div class="card-stat clickable" id="card-rapido" onclick="abrirCardDetalhe('rapido')">
+          <div class="card-stat-label">MAIS RÁPIDO <span class="hint">ver detalhe →</span></div>
+          <div class="card-stat-n green" id="card-rapido-n">—</div>
+          <div class="card-stat-sub">tempo mínimo</div>
+        </div>
+        <div class="card-stat clickable" id="card-lento" onclick="abrirCardDetalhe('lento')">
+          <div class="card-stat-label">MAIS LENTO <span class="hint">ver detalhe →</span></div>
+          <div class="card-stat-n red" id="card-lento-n">—</div>
+          <div class="card-stat-sub">tempo máximo</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-section">
+      <div class="table-header">
+        <div class="table-title">Histórico por dia</div>
+        <div class="table-sub">Clique em um dia para ver os movimentos</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>DATA</th>
+            <th>PEDIDOS</th>
+            <th>TEMPO MÉDIO</th>
+            <th>MAIS RÁPIDO</th>
+            <th>MAIS LENTO</th>
+            <th>DESEMPENHO</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="hist-body">
+          <tr><td colspan="7" class="loading">Carregando histórico...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPA_URL = 'https://fevhyllvfhvzzfhwyjuk.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZldmh5bGx2Zmh2enpmaHd5anVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NzEyMTcsImV4cCI6MjA5NDQ0NzIxN30.GJRgEKW1bVWX1957_bKCTO6aVmR_rXWRCmo9-ZJDPiE';
+
+let todosOsDias = {};
+let pedidosHoje = [];
+
+setInterval(() => { document.getElementById('clk').textContent = new Date().toLocaleTimeString('pt-BR'); }, 1000);
+document.getElementById('clk').textContent = new Date().toLocaleTimeString('pt-BR');
+
+function fmt(s) {
+  if (!s && s !== 0) return '—';
+  return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+}
+
+function tempoEmSeg(inicio, fim) {
+  if (!inicio || !fim) return 0;
+  return Math.floor((new Date(fim) - new Date(inicio)) / 1000);
+}
+
+function dataLabel(dateStr) {
+  const d = new Date(dateStr);
+  const dias = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  return dias[d.getDay()];
+}
+
+function formatData(dateStr) {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('pt-BR');
+}
+
+function isHoje(dateStr) {
+  const d = new Date(dateStr);
+  const h = new Date();
+  return d.getDate() === h.getDate() && d.getMonth() === h.getMonth() && d.getFullYear() === h.getFullYear();
+}
+
+async function carregar() {
+  const res = await fetch(`${SUPA_URL}/rest/v1/kds_pedidos?status=eq.done&order=criado_em.desc&limit=500`, {
+    headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` }
+  });
+  const data = await res.json();
+
+  // Agrupar por dia
+  const grupos = {};
+  data.forEach(p => {
+    const d = new Date(p.criado_em);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    if (!grupos[key]) grupos[key] = [];
+    p.tempo_seg = tempoEmSeg(p.criado_em, p.atendido_em);
+    grupos[key].push(p);
+  });
+  todosOsDias = grupos;
+
+  // Hoje
+  const hojeKey = new Date().toISOString().slice(0, 10);
+  pedidosHoje = grupos[hojeKey] || [];
+  renderHoje(pedidosHoje);
+  renderTabela(grupos);
+}
+
+function renderHoje(pedidos) {
+  const d = new Date();
+  const label = d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+  document.getElementById('hoje-label').innerHTML = `HOJE — ${label.toUpperCase()} <span style="flex:1;height:0.5px;background:#e4e4e7;display:block"></span>`;
+
+  if (!pedidos.length) {
+    document.getElementById('card-total').textContent = '0';
+    document.getElementById('card-medio').textContent = '—';
+    document.getElementById('card-rapido-n').textContent = '—';
+    document.getElementById('card-lento-n').textContent = '—';
+    return;
+  }
+  const tempos = pedidos.map(p => p.tempo_seg).filter(t => t > 0);
+  const media = Math.floor(tempos.reduce((a, b) => a + b, 0) / tempos.length);
+  const min = Math.min(...tempos);
+  const max = Math.max(...tempos);
+  document.getElementById('card-total').textContent = pedidos.length;
+  document.getElementById('card-medio').textContent = fmt(media);
+  document.getElementById('card-rapido-n').textContent = fmt(min);
+  document.getElementById('card-lento-n').textContent = fmt(max);
+}
+
+function renderTabela(grupos) {
+  const keys = Object.keys(grupos).sort((a, b) => b.localeCompare(a));
+  if (!keys.length) {
+    document.getElementById('hist-body').innerHTML = '<tr class="empty-row"><td colspan="7">Nenhum dado ainda</td></tr>';
+    return;
+  }
+
+  // Calcular média geral para desempenho
+  const todasMedias = keys.map(k => {
+    const ts = grupos[k].map(p => p.tempo_seg).filter(t => t > 0);
+    return ts.length ? ts.reduce((a, b) => a + b, 0) / ts.length : 0;
+  }).filter(m => m > 0);
+  const mediaGeral = todasMedias.reduce((a, b) => a + b, 0) / (todasMedias.length || 1);
+
+  const rows = keys.map(key => {
+    const pedidos = grupos[key];
+    const tempos = pedidos.map(p => p.tempo_seg).filter(t => t > 0);
+    const media = tempos.length ? Math.floor(tempos.reduce((a, b) => a + b, 0) / tempos.length) : 0;
+    const min = tempos.length ? Math.min(...tempos) : 0;
+    const max = tempos.length ? Math.max(...tempos) : 0;
+    const dLabel = isHoje(key + 'T12:00:00') ? '<strong>Hoje</strong>' : dataLabel(key + 'T12:00:00');
+    const badgeCls = pedidos.length >= 20 ? 'green' : 'amber';
+    const desempenho = media < mediaGeral * 0.9
+      ? '<span class="trend-up">↑ Acima da média</span>'
+      : media > mediaGeral * 1.1
+      ? '<span class="trend-dn">↓ Abaixo da média</span>'
+      : '<span class="trend-ok">→ Na média</span>';
+
+    return `<tr onclick="abrirDia('${key}')">
+      <td>${dLabel}<br><span class="sub">${new Date(key + 'T12:00:00').toLocaleDateString('pt-BR')}</span></td>
+      <td><span class="badge ${badgeCls}">${pedidos.length}</span></td>
+      <td>${fmt(media)}</td>
+      <td class="sub">${fmt(min)}</td>
+      <td class="sub">${fmt(max)}</td>
+      <td>${desempenho}</td>
+      <td class="row-hint">ver →</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('hist-body').innerHTML = rows;
+}
+
+function abrirDia(key) {
+  const pedidos = todosOsDias[key] || [];
+  if (!pedidos.length) return;
+  const tempos = pedidos.map(p => p.tempo_seg).filter(t => t > 0);
+  const minT = Math.min(...tempos);
+  const maxT = Math.max(...tempos);
+  const data = new Date(key + 'T12:00:00').toLocaleDateString('pt-BR');
+
+  const rows = pedidos.map(p => {
+    const isFast = p.tempo_seg === minT;
+    const isSlow = p.tempo_seg === maxT;
+    const rowClass = isFast ? 'highlight-green' : isSlow ? 'highlight-red' : '';
+    const tag = isFast ? '<span class="tag-fast">+ rápido</span>' : isSlow ? '<span class="tag-slow">+ lento</span>' : '';
+    return `<tr class="${rowClass}">
+      <td>MOV ${p.movimento}</td>
+      <td class="muted">${p.analista}</td>
+      <td>${fmt(p.tempo_seg)}${tag}</td>
+      <td class="muted">${p.observacao || '—'}</td>
+    </tr>`;
+  }).join('');
+
+  abrirModal(
+    `Movimentos — ${data}`,
+    `${pedidos.length} pedidos atendidos`,
+    `<table class="modal-table">
+      <thead><tr><th>MOVIMENTO</th><th>ANALISTA</th><th>TEMPO</th><th>OBSERVAÇÃO</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`
+  );
+}
+
+function abrirCardDetalhe(tipo) {
+  if (!pedidosHoje.length) return;
+  const tempos = pedidosHoje.map(p => p.tempo_seg).filter(t => t > 0);
+  const alvoSeg = tipo === 'rapido' ? Math.min(...tempos) : Math.max(...tempos);
+  const alvo = pedidosHoje.find(p => p.tempo_seg === alvoSeg);
+  if (!alvo) return;
+  const titulo = tipo === 'rapido' ? 'Pedido mais rápido do dia' : 'Pedido mais lento do dia';
+  const cor = tipo === 'rapido' ? 'fast' : 'slow';
+  const corN = tipo === 'rapido' ? '#16a34a' : '#dc2626';
+  abrirModal(titulo, 'Hoje', `
+    <div class="card-detalhe">
+      <div class="card-detalhe-box ${cor}">
+        <div style="font-size:22px;font-weight:700;color:#09090b;margin-bottom:4px">MOV ${alvo.movimento}</div>
+        <div style="font-size:12px;color:#71717a;margin-bottom:12px">${alvo.analista}</div>
+        <div style="font-size:32px;font-weight:700;color:${corN};font-variant-numeric:tabular-nums">${fmt(alvo.tempo_seg)}</div>
+        <div style="font-size:11px;color:#a1a1aa;margin-top:4px">${tipo === 'rapido' ? 'Tempo mais rápido do dia' : 'Tempo mais lento do dia'}</div>
+        ${alvo.observacao ? `<div style="margin-top:10px;font-size:12px;color:#71717a">Obs: ${alvo.observacao}</div>` : ''}
+      </div>
+    </div>`
+  );
+}
+
+function abrirModal(titulo, sub, conteudo) {
+  fecharModal();
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'modal-overlay';
+  overlay.onclick = e => { if (e.target === overlay) fecharModal(); };
+  overlay.innerHTML = `
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">${titulo}</div>
+          <div class="modal-sub">${sub}</div>
+        </div>
+        <button class="modal-close" onclick="fecharModal()">✕</button>
+      </div>
+      <div class="modal-body">${conteudo}</div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+function fecharModal() {
+  const m = document.getElementById('modal-overlay');
+  if (m) m.remove();
+}
+
+carregar();
+setInterval(carregar, 30000); // atualiza a cada 30s
+</script>
+</body>
+</html>

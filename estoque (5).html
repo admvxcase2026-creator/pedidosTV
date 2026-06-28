@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VX Case · Estoque</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#f4f4f5;min-height:100vh;display:flex;flex-direction:column}
+.screen{background:#fafafa;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:#fff;border-bottom:0.5px solid #e4e4e7;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.brand{font-size:16px;font-weight:700;color:#09090b;letter-spacing:-0.3px;display:flex;align-items:center;gap:10px}
+.live-pip{width:8px;height:8px;border-radius:50%;background:#16a34a;animation:blink 1.8s infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.stat{background:#fff;border:0.5px solid #e4e4e7;border-radius:8px;padding:8px 16px;text-align:center;min-width:80px}
+.stat-n{font-size:24px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.stat-n.g{color:#16a34a}
+.stat-n.b{color:#2563eb}
+.stat-n.a{color:#d97706}
+.stat-l{font-size:9px;font-weight:600;color:#a1a1aa;letter-spacing:0.09em;margin-top:2px}
+.clk{font-size:14px;font-weight:500;color:#a1a1aa;font-variant-numeric:tabular-nums;margin-left:8px}
+.body{flex:1;padding:24px 28px;display:flex;flex-direction:column;gap:20px}
+.sec-label{font-size:10px;font-weight:700;letter-spacing:0.1em;color:#a1a1aa;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.sec-label::after{content:'';flex:1;height:0.5px;background:#e4e4e7}
+.col{display:flex;flex-direction:column;gap:8px}
+.card{background:#fff;border:0.5px solid #e4e4e7;border-radius:10px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes flashCard{0%,100%{background:#fff;border-color:#e4e4e7}50%{background:#fff1f2;border-color:#fca5a5}}
+.card.new-entry{animation:slideDown 0.25s ease-out}
+.card.alerting{animation:flashCard 0.9s ease-in-out 10}
+.card.doing{background:#fffbeb;border-color:#fde68a}
+.card-left{flex:1;display:flex;flex-direction:column;gap:6px}
+.card-top-row{display:flex;align-items:center;gap:8px}
+.mov{font-size:17px;font-weight:700;color:#09090b;letter-spacing:-0.2px}
+.who{font-size:12px;font-weight:500;color:#71717a}
+.obs-box{display:inline-flex;align-items:center;gap:6px;background:#fefce8;border:0.5px solid #fde047;border-radius:6px;padding:5px 10px;width:fit-content}
+.obs-icon{font-size:12px;color:#ca8a04}
+.obs-text{font-size:11px;font-weight:500;color:#854d0e}
+.card-right{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.timer{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;min-width:42px;text-align:right}
+.timer.ok{color:#a1a1aa}
+.timer.w{color:#d97706}
+.timer.c{color:#dc2626}
+.status-tag{font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;white-space:nowrap}
+.tag-waiting{background:#eff6ff;color:#2563eb;border:0.5px solid #bfdbfe}
+.tag-doing{background:#fffbeb;color:#d97706;border:0.5px solid #fde68a}
+.btn{border:none;border-radius:7px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:background 0.15s}
+.btn-atender{background:#09090b;color:#fff}
+.btn-atender:hover{background:#27272a}
+.btn-concluir{background:#16a34a;color:#fff}
+.btn-concluir:hover{background:#15803d}
+.empty{text-align:center;padding:20px 0;color:#d4d4d8;font-size:13px;font-weight:500}
+.footer{background:#fff;border-top:0.5px solid #e4e4e7;padding:12px 28px;display:flex;align-items:center;justify-content:space-between}
+.footer-note{font-size:11px;font-weight:500;color:#a1a1aa;display:flex;align-items:center;gap:6px}
+.conn-status{font-size:11px;font-weight:500;color:#a1a1aa}
+.conn-status.ok{color:#16a34a}
+.conn-status.err{color:#dc2626}
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="topbar">
+    <div class="brand"><span class="live-pip"></span>VX Case · Estoque</div>
+    <div class="topbar-right">
+      <div class="stat"><div class="stat-n g" id="cnt-done">0</div><div class="stat-l">ATENDIDOS</div></div>
+      <div class="stat"><div class="stat-n a" id="cnt-doing">0</div><div class="stat-l">EM ATEND.</div></div>
+      <div class="stat"><div class="stat-n b" id="cnt-wait">0</div><div class="stat-l">AGUARDANDO</div></div>
+      <div class="clk" id="clk">--:--:--</div>
+    </div>
+  </div>
+
+  <div class="body">
+    <div>
+      <div class="sec-label">Aguardando atendimento</div>
+      <div class="col" id="col-waiting">
+        <div class="empty">Nenhuma solicitação aguardando</div>
+      </div>
+    </div>
+    <div>
+      <div class="sec-label">Em atendimento</div>
+      <div class="col" id="col-doing">
+        <div class="empty">Nenhum em atendimento</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="audio-unlock" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:999">
+  <button onclick="unlockAudio()" style="background:#09090b;color:#fff;border:none;border-radius:12px;padding:20px 40px;font-size:18px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;display:flex;align-items:center;gap:12px"><i class="ti ti-volume" style="font-size:22px"></i> Toque para ativar o painel</button>
+</div>
+<div class="footer">
+    <div class="footer-note">
+      <span style="width:6px;height:6px;border-radius:50%;background:#16a34a;display:inline-block"></span>
+      <span class="conn-status" id="conn-status">Conectando...</span>
+    </div>
+    <div style="font-size:11px;color:#d4d4d8">VX Case KDS v1.0</div>
+  </div>
+</div>
+
+<audio id="snd" src="https://admvxcase2026-creator.github.io/pedidosTV/universfield-new-notification-046-494237.mp3" preload="auto"></audio>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPA_URL = 'https://fevhyllvfhvzzfhwyjuk.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZldmh5bGx2Zmh2enpmaHd5anVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NzEyMTcsImV4cCI6MjA5NDQ0NzIxN30.GJRgEKW1bVWX1957_bKCTO6aVmR_rXWRCmo9-ZJDPiE';
+const sbClient = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+let doneToday = 0;
+const cards = {};
+
+setInterval(() => {
+  document.getElementById('clk').textContent = new Date().toLocaleTimeString('pt-BR');
+  Object.values(cards).forEach(c => {
+    if (c.status === 'waiting' || c.status === 'doing') {
+      c.elapsed++;
+      const el = document.querySelector(`[data-id="${c.id}"] .timer`);
+      if (!el) return;
+      el.textContent = fmt(c.elapsed);
+      el.className = 'timer' + (c.elapsed > 600 ? ' c' : c.elapsed > 240 ? ' w' : ' ok');
+    }
+  });
+}, 1000);
+document.getElementById('clk').textContent = new Date().toLocaleTimeString('pt-BR');
+
+function fmt(s) {
+  return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+}
+
+function mkCard(row) {
+  const d = document.createElement('div');
+  d.className = 'card new-entry' + (row.status === 'doing' ? ' doing' : '');
+  d.dataset.id = row.id;
+  const obsHtml = row.observacao ? `<div class="obs-box"><i class="ti ti-alert-triangle obs-icon"></i><span class="obs-text">${row.observacao}</span></div>` : '';
+  const tag = row.status === 'doing'
+    ? '<span class="status-tag tag-doing">Em atendimento</span>'
+    : '<span class="status-tag tag-waiting">Aguardando</span>';
+  const btn = row.status === 'doing'
+    ? `<button class="btn btn-concluir" onclick="concluir('${row.id}')">Concluir</button>`
+    : `<button class="btn btn-atender" onclick="atender('${row.id}')">Atender</button>`;
+  const elapsed = row.elapsed || 0;
+  d.innerHTML = `
+    <div class="card-left">
+      <div class="card-top-row">
+        <div class="mov">MOV ${row.movimento}</div>
+        ${tag}
+      </div>
+      <div class="who">${row.analista}</div>
+      ${obsHtml}
+    </div>
+    <div class="card-right">
+      <div class="timer ok">${fmt(elapsed)}</div>
+      ${btn}
+    </div>`;
+  return d;
+}
+
+async function atender(id) {
+  await fetch(`${SUPA_URL}/rest/v1/kds_pedidos?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` },
+    body: JSON.stringify({ status: 'doing' })
+  });
+  if (cards[id]) cards[id].status = 'doing';
+  const card = document.querySelector(`[data-id="${id}"]`);
+  if (!card) return;
+  card.classList.add('doing');
+  const tag = card.querySelector('.status-tag');
+  if (tag) { tag.className = 'status-tag tag-doing'; tag.textContent = 'Em atendimento'; }
+  const btn = card.querySelector('.btn');
+  if (btn) { btn.className = 'btn btn-concluir'; btn.textContent = 'Concluir'; btn.onclick = () => concluir(id); }
+  document.getElementById('col-doing').prepend(card);
+  limparEmpty('col-doing');
+  refresh();
+}
+
+async function concluir(id) {
+  await fetch(`${SUPA_URL}/rest/v1/kds_pedidos?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` },
+    body: JSON.stringify({ status: 'done', atendido_em: new Date().toISOString() })
+  });
+  const card = document.querySelector(`[data-id="${id}"]`);
+  if (!card) return;
+  card.style.transition = 'opacity 0.2s,transform 0.2s';
+  card.style.opacity = '0';
+  card.style.transform = 'translateX(16px)';
+  setTimeout(() => { card.remove(); delete cards[id]; doneToday++; refresh(); }, 220);
+}
+
+function limparEmpty(colId) {
+  const e = document.querySelector(`#${colId} .empty`);
+  if (e) e.remove();
+}
+
+function refresh() {
+  const waiting = Object.values(cards).filter(c => c.status === 'waiting').length;
+  const doing = Object.values(cards).filter(c => c.status === 'doing').length;
+  document.getElementById('cnt-wait').textContent = waiting;
+  document.getElementById('cnt-doing').textContent = doing;
+  document.getElementById('cnt-done').textContent = doneToday;
+  ['col-waiting', 'col-doing'].forEach(colId => {
+    const col = document.getElementById(colId);
+    if (!col.querySelector('.card')) {
+      col.innerHTML = '<div class="empty">' + (colId === 'col-waiting' ? 'Nenhuma solicitação aguardando' : 'Nenhum em atendimento') + '</div>';
+    }
+  });
+}
+
+async function carregarPedidosAtivos() {
+  const hoje = new Date().toISOString().slice(0,10);
+  const res = await fetch(`${SUPA_URL}/rest/v1/kds_pedidos?status=in.(waiting,doing)&criado_em=gte.${hoje}T00:00:00&order=criado_em.asc`, {
+    headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` }
+  });
+  const data = await res.json();
+  data.forEach(row => {
+    row.elapsed = Math.floor((Date.now() - new Date(row.criado_em).getTime()) / 1000);
+    cards[row.id] = { id: row.id, status: row.status, elapsed: row.elapsed };
+    const col = row.status === 'doing' ? 'col-doing' : 'col-waiting';
+    document.getElementById(col).appendChild(mkCard(row));
+    limparEmpty(col);
+  });
+  refresh();
+}
+
+sbClient.channel('kds')
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'kds_pedidos' }, payload => {
+    const row = payload.new;
+    row.elapsed = 0;
+    cards[row.id] = { id: row.id, status: 'waiting', elapsed: 0 };
+    const col = document.getElementById('col-waiting');
+    const d = mkCard(row);
+    col.prepend(d);
+    limparEmpty('col-waiting');
+    refresh();
+    tocarSom();
+    setTimeout(() => {
+      d.classList.add('alerting');
+      setTimeout(() => d.classList.remove('alerting'), 9200);
+    }, 100);
+    document.getElementById('conn-status').textContent = 'Conectado · ao vivo';
+    document.getElementById('conn-status').className = 'conn-status ok';
+  })
+  .subscribe(status => {
+    const el = document.getElementById('conn-status');
+    if (status === 'SUBSCRIBED') {
+      el.textContent = 'Conectado · ao vivo';
+      el.className = 'conn-status ok';
+    } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+      el.textContent = 'Sem conexão';
+      el.className = 'conn-status err';
+    }
+  });
+
+function unlockAudio() {
+  const overlay = document.getElementById("audio-unlock");
+  const s = document.getElementById("snd");
+  s.play().then(() => { s.pause(); s.currentTime = 0; }).catch(() => {});
+  if (overlay) overlay.remove();
+}
+
+function tocarSom() {
+  try {
+    const s = document.getElementById('snd');
+    if (!s) return;
+    s.pause();
+    s.currentTime = 0;
+    setTimeout(() => {
+      const p = s.play();
+      if (p !== undefined) p.catch(() => {});
+    }, 50);
+  } catch(e) {}
+}
+
+carregarPedidosAtivos();
+</script>
+</body>
+</html>
